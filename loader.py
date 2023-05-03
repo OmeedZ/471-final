@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 class DataSchema:
     INDICATOR = "indicator"
     POPULATION = "population"
@@ -10,14 +11,6 @@ class DataSchema:
 
 def load_data(path: str) -> pd.DataFrame:
     data = pd.read_csv(
-            path,
-            dtype={
-                DataSchema.INDICATOR: str,
-                DataSchema.POPULATION: float,
-                DataSchema.SURFACE_AREA: int,
-                DataSchema.GINI_INDEX: float,
-                DataSchema.HAPPY_INDEX: float,
-
-            }
+        path
     )
     return data
