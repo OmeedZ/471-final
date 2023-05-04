@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 
 import pandas as pd
 
-#importing data
+# importing data
 df = pd.read_csv(
     'data.csv')
 df = df.dropna(axis=0, subset=['indicator'])
@@ -18,7 +18,7 @@ app.layout = html.Div([
 ])
 
 
-#chloropleth map
+# chloropleth map
 @app.callback(
     Output('c_graph', 'figure'),
     Input('selected-country', 'value'))
@@ -34,7 +34,7 @@ def update_figure(selected_country):
                                == selected_country]]["population (2018)"].values[0]
 
     df_m["adjusted"] = df_m.apply(
-        lambda row: ((mid - row["population (2018)"]) / row["population (2018)"]) * 100, axis=1)
+        lambda row: ((row["population (2018)"] - mid) / row["population (2018)"]) * 100, axis=1)
 
     max = df_m["adjusted"].max()
 
@@ -45,8 +45,8 @@ def update_figure(selected_country):
     fig = go.Figure(go.Choropleth(
         locations=df_m['ISO Country code (2018)'],
         z=df_m["adjusted"],
-        zmax=600,
-        zmin=-100,
+        zmax=110,
+        zmin=-110,
         colorscale='Turbo',
         autocolorscale=False,
         reversescale=True,
