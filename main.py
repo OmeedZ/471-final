@@ -36,17 +36,17 @@ def update_figure(selected_country):
     df_m["adjusted"] = df_m.apply(
         lambda row: ((row["population (2018)"] - mid) / row["population (2018)"]) * 100, axis=1)
 
-    max = df_m["adjusted"].max()
+    max = 110
 
-    min = df_m["adjusted"].min()
+    min = -110
 
     print(df_m['adjusted'])
 
     fig = go.Figure(go.Choropleth(
         locations=df_m['ISO Country code (2018)'],
         z=df_m["adjusted"],
-        zmax=110,
-        zmin=-110,
+        zmax=max,
+        zmin=min,
         colorscale='Turbo',
         autocolorscale=False,
         reversescale=True,
