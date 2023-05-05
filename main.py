@@ -13,7 +13,7 @@ df.replace('-', '0', regex=True, inplace=True)
 df.fillna(0.0, inplace=True)
 
 df = df.astype({'population (2018)': 'Float64',
-               'unemployment (%) (2018)': 'Float64',
+               'unemployment prcnt (2018)': 'Float64',
                 'Economic Growth (2018)': 'Float64',
                 "GDP ($ USD billions PPP) (2018)": 'Float64',
                 "GDP per capita in $ (PPP) (2018)": 'Float64',
@@ -42,20 +42,59 @@ app.layout = html.Div([
                           ],
                  value='population (2018)', id='selected-metric'),
     dcc.Graph(id='c-line'),
-    dcc.Dropdown(['GDP ($ USD billions PPP)', 'GDP per capita in $ (PPP)', 'health expenditure prcnt of GDP',
-                'health expenditure per person', 'Military Spending as prcnt of GDP', 'unemployment'],
-                'GDP ($ USD billions PPP)', id = 'selected-metric', placeholder = "select a metric"
-                )
-                
+    dcc.Dropdown(options=["GDP (USD Billions)",
+                          "GDP per capita in USD",
+                          "Health Expenditure percentage of GDP",
+                          "Health Expenditure per person",
+                          "Military Spending as percentage of GDP",
+                          "unemployment"
+                          ],
+                 value='GDP (USD Billions)', id='new_metric'),
 ])
 
 #line-graph
 @app.callback(
     Output('c-line', 'figure'),
-    Input('selected-metric', 'value')
-)
-def line_graph(selected_metric):
-    pass
+    Input('new_metric', 'val')
+ )
+def line_graph(new_metric):
+    df_gdp=df[['GDP ($ USD billions PPP) (2018)', 'GDP ($ USD billions PPP) (2019)', 'GDP ($ USD billions PPP) (2020)',
+            'GDP ($ USD billions PPP) (2021)']].T
+    df_gdp2=df[['GDP per capita in $ (PPP) (2018)', 'GDP per capita in $ (PPP) (2019)','GDP per capita in $ (PPP) (2020)',
+                'GDP per capita in $ (PPP) (2021)']]
+    df_health=df[['health expenditure prcnt of GDP (2014)','health expenditure prcnt of GDP (2015)',
+                  'health expenditure prcnt of GDP (2016)','health expenditure prcnt of GDP (2017)',
+                  'health expenditure prcnt of GDP (2018)','health expenditure prcnt of GDP (2019)',
+                  'health expenditure prcnt of GDP (2020)','health expenditure prcnt of GDP (2021)',
+                  'health expenditure prcnt of GDP (Latest)']]
+    df_health2 = df[["health expenditure per person (2015)",'health expenditure per person (2018)',
+                  'health expenditure per person (2019)']]
+    df_military=df[['Military Spending as prcnt of GDP (2019)','Military Spending as prcnt of GDP (2021)']]
+    df_unemployment=df[['unemployment prcnt (2018)','unemployment prcnt (2021)']]
+    
+    df_gdp=df_gdp.melt(id_vars="indicator", var_name="metric", value_name="Value")
+    df_gdp2=df_gdp2.melt(id_vars="indicator", var_name="metric", value_name="Value")
+    df_health=df_health.melt(id_vars="indicator", var_name="metric", value_name="Value")
+    df_health2=df_health2.melt(id_vars="indicator", var_name="metric", value_name="Value")
+    df_military=df_military.melt(id_vars="indicator", var_name="metric", value_name="Value")
+    df_unemployment=df_unemployment.melt(id_vars="indicator", var_name="metric", value_name="Value")
+    
+    if new_metric == 'GDP (USD Billions)':
+        fig = px.line(df_gdp,x="metric",y="value",color='indicator')
+    elif new_metric == 'GDP per capita in USD':
+        fig = px.line(df_gdp2,x="metric",y="value",color='indicator')
+    elif new_metric == 'Health Expenditure percentage of GDP':
+        fig = px.line(df_health,x="metric",y="value",color='indicator')
+    elif new_metric == 'Health Expenditure per person':
+        fig = px.line(df_health2,x="metric",y="value",color='indicator')
+    elif new_metric == 'Military Spending as percentage of GDP':
+        fig = px.line(df_military,x="metric",y="value",color='indicator')
+    elif new_metric == 'unemployment':
+        fig = px.line(df_unemployment,x="metric",y="value",color='indicator')
+    else:
+        fig = px.line(df_gdp,x="metric",y="value",color='indicator')
+    
+    return fig
 
 # chloropleth map
 @ app.callback(
