@@ -61,19 +61,19 @@ app.layout = html.Div([
  )
 def line_graph(new_metric):
     #sclicing dataframe
-    df_gdp=df[['GDP ($ USD billions PPP) (2018)', 'GDP ($ USD billions PPP) (2019)', 'GDP ($ USD billions PPP) (2020)',
+    df_gdp=df[['indicator','GDP ($ USD billions PPP) (2018)', 'GDP ($ USD billions PPP) (2019)', 'GDP ($ USD billions PPP) (2020)',
             'GDP ($ USD billions PPP) (2021)']]
-    df_gdp2=df[['GDP per capita in $ (PPP) (2018)', 'GDP per capita in $ (PPP) (2019)','GDP per capita in $ (PPP) (2020)',
+    df_gdp2=df[['indicator','GDP per capita in $ (PPP) (2018)', 'GDP per capita in $ (PPP) (2019)','GDP per capita in $ (PPP) (2020)',
                 'GDP per capita in $ (PPP) (2021)']]
-    df_health=df[['health expenditure prcnt of GDP (2014)','health expenditure prcnt of GDP (2015)',
+    df_health=df[['indicator','health expenditure prcnt of GDP (2014)','health expenditure prcnt of GDP (2015)',
                   'health expenditure prcnt of GDP (2016)','health expenditure prcnt of GDP (2017)',
                   'health expenditure prcnt of GDP (2018)','health expenditure prcnt of GDP (2019)',
                   'health expenditure prcnt of GDP (2020)','health expenditure prcnt of GDP (2021)',
                   'health expenditure prcnt of GDP (Latest)']]
-    df_health2 = df[["health expenditure per person (2015)",'health expenditure per person (2018)',
+    df_health2 = df[['indicator',"health expenditure per person (2015)",'health expenditure per person (2018)',
                   'health expenditure per person (2019)']]
-    df_military=df[['Military Spending as prcnt of GDP (2019)','Military Spending as prcnt of GDP (2021)']]
-    df_unemployment=df[['unemployment prcnt (2018)','unemployment prcnt (2021)']]
+    df_military=df[['indicator','Military Spending as prcnt of GDP (2019)','Military Spending as prcnt of GDP (2021)']]
+    df_unemployment=df[['indicator','unemployment prcnt (2018)','unemployment prcnt (2021)']]
     
     #melting dataframe
     df_gdp=df_gdp.melt(id_vars="indicator", var_name="metric", value_name="Value")
@@ -90,6 +90,8 @@ def line_graph(new_metric):
     df_health2['metric'] = df_health2['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
     df_military['metric'] = df_military['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
     df_unemployment['metric'] = df_unemployment['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
+    #getting rid of percents
+    df_military['Value'] = df_military['Value'].str.rstrip("%")
     #converting vals to float
     df_gdp['Value'] = df_gdp['Value'].astype(float)
     df_gdp2['Value'] = df_gdp2['Value'].astype(float)
@@ -97,6 +99,8 @@ def line_graph(new_metric):
     df_health2['Value'] = df_health2['Value'].astype(float)
     df_military['Value'] = df_military['Value'].astype(float)
     df_unemployment['Value'] = df_unemployment['Value'].astype(float)
+    
+
 
     if new_metric == 'GDP (USD Billions)':
         fig = px.line(df_gdp,x="metric",y="Value",color='indicator')
