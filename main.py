@@ -18,7 +18,9 @@ df = df.astype({'population (2018)': 'Float64',
                 "GDP ($ USD billions PPP) (2018)": 'Float64',
                 "GDP per capita in $ (PPP) (2018)": 'Float64',
                 "financial freedom score (2018)": 'Float64',
-                "judicial effectiveness score (2018)": 'Float32'
+                "judicial effectiveness score (2018)": 'Float32',
+                "indicator": "str",
+                'GDP ($ USD billions PPP) (2019)': "Float64"
                 })
 
 def get_max(determine):
@@ -33,7 +35,7 @@ app.layout = html.Div([
     dcc.Dropdown(options=df["indicator"],
                  value='United States', id='selected-country'),
     dcc.Dropdown(options=["population (2018)",
-                          "unemployment (%) (2018)",
+                          "unemployment prcnt (2018)",
                           "GDP ($ USD billions PPP) (2018)",
                           "GDP per capita in $ (PPP) (2018)",
                           "Economic Growth (2018)",
@@ -58,8 +60,9 @@ app.layout = html.Div([
     Input('new_metric', 'val')
  )
 def line_graph(new_metric):
+    #sclicing dataframe
     df_gdp=df[['GDP ($ USD billions PPP) (2018)', 'GDP ($ USD billions PPP) (2019)', 'GDP ($ USD billions PPP) (2020)',
-            'GDP ($ USD billions PPP) (2021)']].T
+            'GDP ($ USD billions PPP) (2021)']]
     df_gdp2=df[['GDP per capita in $ (PPP) (2018)', 'GDP per capita in $ (PPP) (2019)','GDP per capita in $ (PPP) (2020)',
                 'GDP per capita in $ (PPP) (2021)']]
     df_health=df[['health expenditure prcnt of GDP (2014)','health expenditure prcnt of GDP (2015)',
@@ -72,27 +75,43 @@ def line_graph(new_metric):
     df_military=df[['Military Spending as prcnt of GDP (2019)','Military Spending as prcnt of GDP (2021)']]
     df_unemployment=df[['unemployment prcnt (2018)','unemployment prcnt (2021)']]
     
+    #melting dataframe
     df_gdp=df_gdp.melt(id_vars="indicator", var_name="metric", value_name="Value")
     df_gdp2=df_gdp2.melt(id_vars="indicator", var_name="metric", value_name="Value")
     df_health=df_health.melt(id_vars="indicator", var_name="metric", value_name="Value")
     df_health2=df_health2.melt(id_vars="indicator", var_name="metric", value_name="Value")
     df_military=df_military.melt(id_vars="indicator", var_name="metric", value_name="Value")
     df_unemployment=df_unemployment.melt(id_vars="indicator", var_name="metric", value_name="Value")
-    
+
+    #converting column to int
+    df_gdp['metric'] = df_gdp['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
+    df_gdp2['metric'] = df_gdp2['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
+    df_health['metric'] = df_health['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
+    df_health2['metric'] = df_health2['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
+    df_military['metric'] = df_military['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
+    df_unemployment['metric'] = df_unemployment['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
+    #converting vals to float
+    df_gdp['Value'] = df_gdp['Value'].astype(float)
+    df_gdp2['Value'] = df_gdp2['Value'].astype(float)
+    df_health['Value'] = df_health['Value'].astype(float)
+    df_health2['Value'] = df_health2['Value'].astype(float)
+    df_military['Value'] = df_military['Value'].astype(float)
+    df_unemployment['Value'] = df_unemployment['Value'].astype(float)
+
     if new_metric == 'GDP (USD Billions)':
-        fig = px.line(df_gdp,x="metric",y="value",color='indicator')
+        fig = px.line(df_gdp,x="metric",y="Value",color='indicator')
     elif new_metric == 'GDP per capita in USD':
-        fig = px.line(df_gdp2,x="metric",y="value",color='indicator')
+        fig = px.line(df_gdp2,x="metric",y="Value",color='indicator')
     elif new_metric == 'Health Expenditure percentage of GDP':
-        fig = px.line(df_health,x="metric",y="value",color='indicator')
+        fig = px.line(df_health,x="metric",y="Value",color='indicator')
     elif new_metric == 'Health Expenditure per person':
-        fig = px.line(df_health2,x="metric",y="value",color='indicator')
+        fig = px.line(df_health2,x="metric",y="Value",color='indicator')
     elif new_metric == 'Military Spending as percentage of GDP':
-        fig = px.line(df_military,x="metric",y="value",color='indicator')
+        fig = px.line(df_military,x="metric",y="Value",color='indicator')
     elif new_metric == 'unemployment':
-        fig = px.line(df_unemployment,x="metric",y="value",color='indicator')
+        fig = px.line(df_unemployment,x="metric",y="Value",color='indicator')
     else:
-        fig = px.line(df_gdp,x="metric",y="value",color='indicator')
+        fig = px.line(df_gdp,x="metric",y="Value",color='indicator')
     
     return fig
 
