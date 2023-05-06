@@ -3,6 +3,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 import pandas as pd
+import numpy as np
 
 # importing data
 df = pd.read_csv('data.csv')
@@ -57,7 +58,7 @@ app.layout = html.Div([
 #line-graph
 @app.callback(
     Output('c-line', 'figure'),
-    Input('new_metric', 'val')
+    Input('new_metric', 'value')
  )
 def line_graph(new_metric):
     #sclicing dataframe
@@ -92,6 +93,7 @@ def line_graph(new_metric):
     df_unemployment['metric'] = df_unemployment['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
     #getting rid of percents
     df_military['Value'] = df_military['Value'].str.rstrip("%")
+    df_military = df_military.replace('...', np.nan)
     #converting vals to float
     df_gdp['Value'] = df_gdp['Value'].astype(float)
     df_gdp2['Value'] = df_gdp2['Value'].astype(float)
