@@ -106,18 +106,60 @@ def line_graph(new_metric):
 
     if new_metric == 'GDP (USD Billions)':
         fig = px.line(df_gdp,x="metric",y="Value",color='indicator')
+        fig.update_layout(
+        xaxis=dict(
+        tickmode='linear',
+        dtick=1
+    )
+)
     elif new_metric == 'GDP per capita in USD':
         fig = px.line(df_gdp2,x="metric",y="Value",color='indicator')
+        fig.update_layout(
+        xaxis=dict(
+        tickmode='linear',
+        dtick=1
+    )
+)
     elif new_metric == 'Health Expenditure percentage of GDP':
         fig = px.line(df_health,x="metric",y="Value",color='indicator')
+        fig.update_layout(
+        xaxis=dict(
+        tickmode='linear',
+        dtick=1
+    )
+)
     elif new_metric == 'Health Expenditure per person':
         fig = px.line(df_health2,x="metric",y="Value",color='indicator')
+        fig.update_layout(
+        xaxis=dict(
+        tickmode='linear',
+        dtick=1
+    )
+)
     elif new_metric == 'Military Spending as percentage of GDP':
         fig = px.line(df_military,x="metric",y="Value",color='indicator')
+        fig.update_layout(
+        xaxis=dict(
+        tickmode='linear',
+        dtick=1
+    )
+)
     elif new_metric == 'unemployment':
         fig = px.line(df_unemployment,x="metric",y="Value",color='indicator')
+        fig.update_layout(
+        xaxis=dict(
+        tickmode='linear',
+        dtick=1
+    )
+)
     else:
         fig = px.line(df_gdp,x="metric",y="Value",color='indicator')
+        fig.update_layout(
+        xaxis=dict(
+        tickmode='linear',
+        dtick=1
+    )
+)
     
     return fig
 
