@@ -1,6 +1,7 @@
 from dash import Dash, dcc, html, Input, Output
 import plotly.express as px
 import plotly.graph_objects as go
+import dash_bootstrap_components as dbc
 
 import pandas as pd
 import numpy as np
@@ -28,10 +29,19 @@ def get_max(determine):
     return ((df[determine].max() -
              df[determine].min()) / df[determine].max()) * 100
 
+app = Dash(__name__,external_stylesheets=[dbc.themes.LUX])
 
-app = Dash(__name__)
+app.layout = html.Div(children=[
+    html.H1(
+        children='471 Final Project',
+        style={
+            'textAlign': 'center'
+        }
+    ),
+    html.Div(children='By: Omeed Zarrabian, Tyler jenkins, Sean Rountree', style={
+        'textAlign': 'center',
+    }),
 
-app.layout = html.Div([
     dcc.Graph(id='c_graph'),
     dcc.Dropdown(options=df["indicator"],
                  value='United States', id='selected-country'),
@@ -53,6 +63,14 @@ app.layout = html.Div([
                           "unemployment"
                           ],
                  value='GDP (USD Billions)', id='new_metric'),
+    html.Div(
+    [
+      html.Br(),
+      html.Br(),
+      html.Br(),
+      html.Br(),
+    ]
+)
 ])
 
 #line-graph
@@ -105,7 +123,7 @@ def line_graph(new_metric):
 
 
     if new_metric == 'GDP (USD Billions)':
-        fig = px.line(df_gdp,x="metric",y="Value",color='indicator')
+        fig = px.line(df_gdp,x="metric",y="Value",color='indicator', markers=True)
         fig.update_layout(
         xaxis=dict(
         tickmode='linear',
@@ -113,7 +131,7 @@ def line_graph(new_metric):
     )
 )
     elif new_metric == 'GDP per capita in USD':
-        fig = px.line(df_gdp2,x="metric",y="Value",color='indicator')
+        fig = px.line(df_gdp2,x="metric",y="Value",color='indicator',markers=True)
         fig.update_layout(
         xaxis=dict(
         tickmode='linear',
@@ -121,7 +139,7 @@ def line_graph(new_metric):
     )
 )
     elif new_metric == 'Health Expenditure percentage of GDP':
-        fig = px.line(df_health,x="metric",y="Value",color='indicator')
+        fig = px.line(df_health,x="metric",y="Value",color='indicator',markers=True)
         fig.update_layout(
         xaxis=dict(
         tickmode='linear',
@@ -129,7 +147,7 @@ def line_graph(new_metric):
     )
 )
     elif new_metric == 'Health Expenditure per person':
-        fig = px.line(df_health2,x="metric",y="Value",color='indicator')
+        fig = px.line(df_health2,x="metric",y="Value",color='indicator',markers=True)
         fig.update_layout(
         xaxis=dict(
         tickmode='linear',
@@ -137,7 +155,7 @@ def line_graph(new_metric):
     )
 )
     elif new_metric == 'Military Spending as percentage of GDP':
-        fig = px.line(df_military,x="metric",y="Value",color='indicator')
+        fig = px.line(df_military,x="metric",y="Value",color='indicator',markers=True)
         fig.update_layout(
         xaxis=dict(
         tickmode='linear',
@@ -145,7 +163,7 @@ def line_graph(new_metric):
     )
 )
     elif new_metric == 'unemployment':
-        fig = px.line(df_unemployment,x="metric",y="Value",color='indicator')
+        fig = px.line(df_unemployment,x="metric",y="Value",color='indicator',markers=True)
         fig.update_layout(
         xaxis=dict(
         tickmode='linear',
@@ -153,7 +171,7 @@ def line_graph(new_metric):
     )
 )
     else:
-        fig = px.line(df_gdp,x="metric",y="Value",color='indicator')
+        fig = px.line(df_gdp,x="metric",y="Value",color='indicator',markers=True)
         fig.update_layout(
         xaxis=dict(
         tickmode='linear',
