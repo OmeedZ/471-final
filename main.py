@@ -38,7 +38,7 @@ app.layout = html.Div(children=[
             'textAlign': 'center'
         }
     ),
-    html.Div(children='By: Omeed Zarrabian, Tyler jenkins, Sean Rountree', style={
+    html.Div(children='By: Omeed Zarrabian, Tyler Jenkins, Sean Rountree', style={
         'textAlign': 'center',
     }),
 
