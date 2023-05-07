@@ -1,59 +1,185 @@
 from dash import Dash, dcc, html, Input, Output
 import plotly.express as px
 import plotly.graph_objects as go
+import dash_bootstrap_components as dbc
 
 import pandas as pd
+import numpy as np
 
 # importing data
-df = pd.read_csv(
-    'data.csv')
+df = pd.read_csv('data.csv')
 df = df.dropna(axis=0, subset=['indicator'])
 
 df.replace(',', '', regex=True, inplace=True)
 df.replace('-', '0', regex=True, inplace=True)
 df.fillna(0.0, inplace=True)
 
-df = df.astype({'population (2018)': 'float64',
-               'unemployment (%) (2018)': 'Float64',
+df = df.astype({'population (2018)': 'Float64',
+               'unemployment prcnt (2018)': 'Float64',
                 'Economic Growth (2018)': 'Float64',
                 "GDP ($ USD billions PPP) (2018)": 'Float64',
                 "GDP per capita in $ (PPP) (2018)": 'Float64',
                 "financial freedom score (2018)": 'Float64',
-                "judicial effectiveness score (2018)": 'Float32'
+                "judicial effectiveness score (2018)": 'Float32',
+                "indicator": "str",
+                'GDP ($ USD billions PPP) (2019)': "Float64"
                 })
-
-print(df["Economic Growth (2018)"])
-
-# Population labels, compare to avg
-# max_pop = (df["population (2018)"].max() / df["population (2018)"].min()) / 1000
-# min_pop = (df["population (2018)"].min() / df["population (2018)"].max()) / 1000
-
-# max_pop = (abs(df["population (2018)"].max() - df["population (2018)"].min()) /
-#            ((df["population (2018)"].max() - df["population (2018)"].min()) / 2)) * 100
-
 
 def get_max(determine):
     return ((df[determine].max() -
              df[determine].min()) / df[determine].max()) * 100
 
+app = Dash(__name__,external_stylesheets=[dbc.themes.LUX])
 
-app = Dash(__name__)
+app.layout = html.Div(children=[
+    html.H1(
+        children='471 Final Project',
+        style={
+            'textAlign': 'center'
+        }
+    ),
+    html.Div(children='By: Omeed Zarrabian, Tyler jenkins, Sean Rountree', style={
+        'textAlign': 'center',
+    }),
 
-app.layout = html.Div([
     dcc.Graph(id='c_graph'),
     dcc.Dropdown(options=df["indicator"],
                  value='United States', id='selected-country'),
     dcc.Dropdown(options=["population (2018)",
-                          "unemployment (%) (2018)",
+                          "unemployment prcnt (2018)",
                           "GDP ($ USD billions PPP) (2018)",
                           "GDP per capita in $ (PPP) (2018)",
                           "Economic Growth (2018)",
                           "financial freedom score (2018)",
                           "judicial effectiveness score (2018)"
                           ],
-                 value='population (2018)', id='selected-metric')
+                 value='population (2018)', id='selected-metric'),
+    dcc.Graph(id='c-line'),
+    dcc.Dropdown(options=["GDP (USD Billions)",
+                          "GDP per capita in USD",
+                          "Health Expenditure percentage of GDP",
+                          "Health Expenditure per person",
+                          "Military Spending as percentage of GDP",
+                          "unemployment"
+                          ],
+                 value='GDP (USD Billions)', id='new_metric'),
+    html.Div(
+    [
+      html.Br(),
+      html.Br(),
+      html.Br(),
+      html.Br(),
+    ]
+)
 ])
 
+#line-graph
+@app.callback(
+    Output('c-line', 'figure'),
+    Input('new_metric', 'value')
+ )
+def line_graph(new_metric):
+    #sclicing dataframe
+    df_gdp=df[['indicator','GDP ($ USD billions PPP) (2018)', 'GDP ($ USD billions PPP) (2019)', 'GDP ($ USD billions PPP) (2020)',
+            'GDP ($ USD billions PPP) (2021)']]
+    df_gdp2=df[['indicator','GDP per capita in $ (PPP) (2018)', 'GDP per capita in $ (PPP) (2019)','GDP per capita in $ (PPP) (2020)',
+                'GDP per capita in $ (PPP) (2021)']]
+    df_health=df[['indicator','health expenditure prcnt of GDP (2014)','health expenditure prcnt of GDP (2015)',
+                  'health expenditure prcnt of GDP (2016)','health expenditure prcnt of GDP (2017)',
+                  'health expenditure prcnt of GDP (2018)','health expenditure prcnt of GDP (2019)',
+                  'health expenditure prcnt of GDP (2020)','health expenditure prcnt of GDP (2021)',
+                  'health expenditure prcnt of GDP (Latest)']]
+    df_health2 = df[['indicator',"health expenditure per person (2015)",'health expenditure per person (2018)',
+                  'health expenditure per person (2019)']]
+    df_military=df[['indicator','Military Spending as prcnt of GDP (2019)','Military Spending as prcnt of GDP (2021)']]
+    df_unemployment=df[['indicator','unemployment prcnt (2018)','unemployment prcnt (2021)']]
+    
+    #melting dataframe
+    df_gdp=df_gdp.melt(id_vars="indicator", var_name="metric", value_name="Value")
+    df_gdp2=df_gdp2.melt(id_vars="indicator", var_name="metric", value_name="Value")
+    df_health=df_health.melt(id_vars="indicator", var_name="metric", value_name="Value")
+    df_health2=df_health2.melt(id_vars="indicator", var_name="metric", value_name="Value")
+    df_military=df_military.melt(id_vars="indicator", var_name="metric", value_name="Value")
+    df_unemployment=df_unemployment.melt(id_vars="indicator", var_name="metric", value_name="Value")
+
+    #converting column to int
+    df_gdp['metric'] = df_gdp['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
+    df_gdp2['metric'] = df_gdp2['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
+    df_health['metric'] = df_health['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
+    df_health2['metric'] = df_health2['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
+    df_military['metric'] = df_military['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
+    df_unemployment['metric'] = df_unemployment['metric'].astype('str').str.extractall('(\d+)').unstack().fillna('').sum(axis=1).astype(int)
+    #getting rid of percents
+    df_military['Value'] = df_military['Value'].str.rstrip("%")
+    df_military = df_military.replace('...', np.nan)
+    #converting vals to float
+    df_gdp['Value'] = df_gdp['Value'].astype(float)
+    df_gdp2['Value'] = df_gdp2['Value'].astype(float)
+    df_health['Value'] = df_health['Value'].astype(float)
+    df_health2['Value'] = df_health2['Value'].astype(float)
+    df_military['Value'] = df_military['Value'].astype(float)
+    df_unemployment['Value'] = df_unemployment['Value'].astype(float)
+    
+
+
+    if new_metric == 'GDP (USD Billions)':
+        fig = px.line(df_gdp,x="metric",y="Value",color='indicator', markers=True)
+        fig.update_layout(
+        xaxis=dict(
+        tickmode='linear',
+        dtick=1
+    )
+)
+    elif new_metric == 'GDP per capita in USD':
+        fig = px.line(df_gdp2,x="metric",y="Value",color='indicator',markers=True)
+        fig.update_layout(
+        xaxis=dict(
+        tickmode='linear',
+        dtick=1
+    )
+)
+    elif new_metric == 'Health Expenditure percentage of GDP':
+        fig = px.line(df_health,x="metric",y="Value",color='indicator',markers=True)
+        fig.update_layout(
+        xaxis=dict(
+        tickmode='linear',
+        dtick=1
+    )
+)
+    elif new_metric == 'Health Expenditure per person':
+        fig = px.line(df_health2,x="metric",y="Value",color='indicator',markers=True)
+        fig.update_layout(
+        xaxis=dict(
+        tickmode='linear',
+        dtick=1
+    )
+)
+    elif new_metric == 'Military Spending as percentage of GDP':
+        fig = px.line(df_military,x="metric",y="Value",color='indicator',markers=True)
+        fig.update_layout(
+        xaxis=dict(
+        tickmode='linear',
+        dtick=1
+    )
+)
+    elif new_metric == 'unemployment':
+        fig = px.line(df_unemployment,x="metric",y="Value",color='indicator',markers=True)
+        fig.update_layout(
+        xaxis=dict(
+        tickmode='linear',
+        dtick=1
+    )
+)
+    else:
+        fig = px.line(df_gdp,x="metric",y="Value",color='indicator',markers=True)
+        fig.update_layout(
+        xaxis=dict(
+        tickmode='linear',
+        dtick=1
+    )
+)
+    
+    return fig
 
 # chloropleth map
 @ app.callback(
@@ -61,9 +187,7 @@ app.layout = html.Div([
     Input('selected-country', 'value'),
     Input('selected-metric', 'value'))
 def update_figure(selected_country, selected_metric):
-
     df_m = df
-
     max = get_max(selected_metric)
     min = - max
 
@@ -87,7 +211,6 @@ def update_figure(selected_country, selected_metric):
         hoverinfo="text",
         hovertext=df_m[[selected_metric, "indicator"]],
     ))
-
     return fig
 
 
